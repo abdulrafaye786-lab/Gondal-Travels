@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lumina Travel | Escape the Ordinary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Anybody:wght@400;600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .liquid-parallax-layer {
+            will-change: transform;
+            transition: transform 0.1s ease-out;
+        }
+
+        .timeline-path {
+            stroke-dasharray: 8;
+            stroke-dashoffset: 1000;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 206, 209, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(0, 206, 209, 0); }
+        }
+        
+        .animate-pulse-soft {
+            animation: pulse-soft 2s infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: flex;
+            width: max-content;
+            animation: marquee 40s linear infinite;
+        }
+        .animate-marquee:hover {
+            animation-play-state: paused;
+        }
+
+        /* Plane Scroll and Preloader Styles */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background-color: #050508;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+        }
+        #preloader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        #plane-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .telemetry-hud {
+            font-family: monospace;
+            text-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+        }
+        #mobile-menu {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #mobile-menu.open {
+            transform: translateX(0);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#006d3d",
+                        "inverse-primary": "#2ddbde",
+                        "primary-fixed": "#5af8fb",
+                        "on-primary-container": "#005354",
+                        "on-background": "#161c27",
+                        "secondary-fixed": "#ffdcc3",
+                        "outline": "#6b7a7a",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#9af6b8",
+                        "on-tertiary-fixed-variant": "#00522d",
+                        "on-surface": "#161c27",
+                        "surface-container-highest": "#dde2f3",
+                        "on-secondary-fixed-variant": "#6e3900",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e3e8f9",
+                        "secondary-fixed-dim": "#ffb77d",
+                        "secondary-container": "#fd8b00",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#00696b",
+                        "surface-variant": "#dde2f3",
+                        "primary-fixed-dim": "#2ddbde",
+                        "outline-variant": "#bac9c9",
+                        "secondary": "#904d00",
+                        "primary": "#00696b",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#ecf0ff",
+                        "surface-container": "#e8eeff",
+                        "on-primary-fixed": "#002020",
+                        "tertiary-fixed-dim": "#7ed99e",
+                        "on-tertiary-fixed": "#00210f",
+                        "surface": "#f9f9ff",
+                        "tertiary-container": "#71cc92",
+                        "surface-dim": "#d4daea",
+                        "on-primary-fixed-variant": "#004f51",
+                        "inverse-surface": "#2a303d",
+                        "background": "#f9f9ff",
+                        "surface-bright": "#f9f9ff",
+                        "on-tertiary-container": "#00552f",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#f1f3ff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#603100",
+                        "primary-container": "#00ced1",
+                        "on-secondary-fixed": "#2f1500",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#3b4949"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-gap": "120px",
+                        "margin-mobile": "24px",
+                        "unit": "8px",
+                        "gutter-mobile": "16px",
+                        "gutter-desktop": "32px",
+                        "container-max": "1440px",
+                        "margin-desktop": "80px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Anybody"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Anybody"],
+                        "display-lg": ["Anybody"],
+                        "headline-md": ["Anybody"],
+                        "display-lg-mobile": ["Anybody"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["32px", {"lineHeight": "1.3", "letterSpacing": "0.01em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "700"}],
+                        "display-lg": ["72px", {"lineHeight": "1.1", "letterSpacing": "0.04em", "fontWeight": "800"}],
+                        "headline-md": ["24px", {"lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "display-lg-mobile": ["40px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "800"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container">
+
+<!-- Luxury Preloader -->
+<div id="preloader">
+    <div class="loader-logo">
+        <span class="loader-icon text-primary font-display-lg text-4xl font-bold tracking-[0.25em]">LUMINA</span>
+    </div>
+    <div class="loader-progress-container">
+        <div id="loader-progress" class="loader-progress-bar"></div>
+    </div>
+    <div id="loader-percent" class="loader-text">PREPARING EXPEDITIONS... 0%</div>
+</div>
+
+<!-- Mobile Navigation Sidebar -->
+<div id="mobile-menu" class="fixed inset-y-0 right-0 w-64 bg-surface z-[999] shadow-2xl translate-x-full flex flex-col p-8 border-l border-outline-variant/30">
+    <div class="flex justify-between items-center mb-12">
+        <span class="font-display-lg text-2xl text-primary font-bold">LUMINA</span>
+        <button id="mobile-menu-close" class="material-symbols-outlined text-on-surface text-2xl hover:scale-105 transition-transform">close</button>
+    </div>
+    <ul class="flex flex-col gap-6 text-lg font-medium text-on-surface mb-12">
+        <li><a class="hover:text-primary transition-colors active" href="#">Destinations</a></li>
+        <li><a class="hover:text-primary transition-colors" href="#">Experiences</a></li>
+        <li><a class="hover:text-primary transition-colors" href="#">Itineraries</a></li>
+        <li><a class="hover:text-primary transition-colors" href="#">About</a></li>
+        <li><a class="hover:text-primary transition-colors" href="#">Reviews</a></li>
+    </ul>
+    <button class="w-full py-4 bg-secondary text-on-secondary rounded-full font-label-md hover:scale-105 transition-transform duration-300">Plan My Trip</button>
+</div>
+
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-sm">
+<nav class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-unit max-w-container-max mx-auto h-20">
+<div class="font-display-lg text-headline-md tracking-tighter text-primary">LUMINA TRAVEL</div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-primary border-b-2 border-secondary font-bold font-body-md text-body-md" href="#">Destinations</a>
+<a class="text-on-surface hover:text-secondary transition-colors font-body-md text-body-md" href="#">Experiences</a>
+<a class="text-on-surface hover:text-secondary transition-colors font-body-md text-body-md" href="#">Itineraries</a>
+<a class="text-on-surface hover:text-secondary transition-colors font-body-md text-body-md" href="#">About</a>
+<a class="text-on-surface hover:text-secondary transition-colors font-body-md text-body-md" href="#">Reviews</a>
+</div>
+<div class="flex items-center space-x-4">
+<button class="material-symbols-outlined text-on-surface hover:scale-105 transition-transform">search</button>
+<button class="hidden md:block px-6 py-2 bg-secondary text-on-secondary rounded-full font-label-md text-label-md hover:scale-105 transition-transform duration-300">Plan My Trip</button>
+<button id="mobile-menu-btn" class="md:hidden material-symbols-outlined text-primary">menu</button>
+</div>
+</nav>
+</header>
+<main>
+<!-- 1. Cinematic Scroll Canvas Hero Section -->
+<section id="hero-scroll-container" class="relative h-[400vh] w-full bg-slate-950">
+    <div class="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center">
+        <!-- Canvas target for plane frames -->
+        <canvas id="plane-canvas" class="absolute w-full h-full object-cover opacity-80 z-0"></canvas>
+        
+        <!-- Vignette & Shadow Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-background z-10 pointer-events-none"></div>
+        <div class="absolute inset-0 bg-radial-gradient z-10 pointer-events-none" style="background: radial-gradient(circle at center, transparent 35%, rgba(5,5,8,0.7) 100%);"></div>
+
+        <!-- Supersonic Telemetry Overlay HUD -->
+        <div class="absolute bottom-10 right-10 font-mono text-[10px] text-primary-container z-30 pointer-events-none opacity-70 hidden md:block text-right tracking-widest leading-relaxed">
+            <div id="tele-frame">FRAME: 082</div>
+            <div id="tele-alt">ALTITUDE: 0 FT</div>
+            <div id="tele-speed">VELOCITY: MACH 0.00</div>
+            <div id="tele-pitch">PITCH: 0°</div>
+            <div>STATUS: AUTOPILOT ACTIVE</div>
+        </div>
+
+        <!-- Content -->
+        <div class="relative z-20 text-center text-white px-margin-mobile max-w-4xl mx-auto flex flex-col items-center">
+            <h1 id="hero-title" class="font-display-lg text-display-lg-mobile md:text-display-lg mb-6 leading-tight select-none">
+                Escape the <span class="text-primary-container">Ordinary</span>
+            </h1>
+            <p id="hero-subtitle" class="font-body-lg text-body-lg mb-10 max-w-2xl select-none text-white/90">
+                Hand-crafted luxury expeditions to the world's most breathtaking horizons. Experience the rhythm of the planet.
+            </p>
+            <div id="hero-buttons" class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                <button class="px-10 py-5 bg-secondary text-on-secondary text-label-md font-bold rounded-full hover:scale-105 transition-transform shadow-lg shadow-secondary/30">
+                    Find Your Adventure
+                </button>
+                <button class="px-10 py-5 border-2 border-white text-white text-label-md font-bold rounded-full hover:bg-white/10 transition-colors">
+                    View Itineraries
+                </button>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div id="hero-scroll-indicator" class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-30 pointer-events-none opacity-80 transition-opacity duration-300">
+            <span class="text-[9px] tracking-[0.3em] text-white/50 uppercase font-medium">Scroll to launch</span>
+            <div class="w-5 h-8 border-2 border-white/20 rounded-full relative">
+                <div class="w-1 h-2 bg-primary-container rounded-full absolute top-1.5 left-1/2 -translate-x-1/2 animate-bounce"></div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- 2. Interactive Smart Filter -->
+<section class="relative z-30 -mt-16 md:-mt-24 px-margin-mobile">
+<div class="max-w-6xl mx-auto glass-card rounded-2xl p-6 md:p-8 shadow-2xl flex flex-col md:flex-row items-end gap-6">
+<div class="flex-1 w-full space-y-2">
+<label class="font-label-md text-primary ml-1">Destination</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">location_on</span>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-lowest border-none rounded-xl focus:ring-2 focus:ring-primary-container transition-all" placeholder="Where to?" type="text"/>
+</div>
+</div>
+<div class="flex-1 w-full space-y-2">
+<label class="font-label-md text-primary ml-1">Dates</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">calendar_today</span>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-lowest border-none rounded-xl focus:ring-2 focus:ring-primary-container transition-all" placeholder="Add dates" type="text"/>
+</div>
+</div>
+<div class="flex-1 w-full space-y-2">
+<label class="font-label-md text-primary ml-1">Budget</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">payments</span>
+<select class="w-full pl-12 pr-4 py-4 bg-surface-container-lowest border-none rounded-xl focus:ring-2 focus:ring-primary-container transition-all appearance-none">
+<option>Mid-range Luxury</option>
+<option>Ultra-Premium</option>
+<option>Elite Private</option>
+</select>
+</div>
+</div>
+<button class="w-full md:w-auto px-12 py-4 bg-primary text-on-primary font-label-md font-bold rounded-xl hover:bg-on-primary-container transition-colors h-[60px] flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">search</span> Search
+                </button>
+</div>
+</section>
+<!-- 3. Trending Destinations -->
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto overflow-hidden">
+<div class="flex justify-between items-end mb-16">
+<div>
+<h2 class="font-display-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-4">Trending Now</h2>
+<p class="text-body-lg text-on-surface-variant max-w-xl">Our most sought-after summer escapes, curated for the modern explorer seeking depth and luxury.</p>
+</div>
+<button class="hidden md:flex items-center gap-2 text-primary font-label-md group">
+                    View All Destinations <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter-desktop">
+        <!-- Bali Card -->
+        <div class="group relative aspect-[3/4] rounded-xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 reveal-card">
+            <div class="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700" data-alt="A lush tropical paradise in Bali, featuring tiered infinity pools overlooking a dense emerald rainforest at dawn." style="background-image: url('bali.jpg')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8 w-full">
+<div class="px-3 py-1 bg-primary-container/20 backdrop-blur-md text-primary-fixed-dim text-label-sm rounded-full w-fit mb-4">Beach &amp; Wellness</div>
+<h3 class="text-white font-headline-md mb-2">Ubud Serenity, Bali</h3>
+<div class="flex items-center justify-between">
+<span class="text-white/80 font-body-md">$2,450 / person</span>
+<span class="material-symbols-outlined text-secondary-container">star</span>
+</div>
+</div>
+</div>
+        <!-- Paris Card -->
+        <div class="group relative aspect-[3/4] rounded-xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 reveal-card delay-100">
+            <div class="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700" data-alt="A sophisticated Parisian balcony view of the Eiffel Tower at twilight." style="background-image: url('paris.jpg')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8 w-full">
+<div class="px-3 py-1 bg-secondary-container/20 backdrop-blur-md text-secondary-fixed text-label-sm rounded-full w-fit mb-4">Culture &amp; Art</div>
+<h3 class="text-white font-headline-md mb-2">Artistic Heart, Paris</h3>
+<div class="flex items-center justify-between">
+<span class="text-white/80 font-body-md">$3,100 / person</span>
+<span class="material-symbols-outlined text-secondary-container">star</span>
+</div>
+</div>
+</div>
+        <!-- Tokyo Card -->
+        <div class="group relative aspect-[3/4] rounded-xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 reveal-card delay-200">
+            <div class="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700" data-alt="A vibrant night scene in Shinjuku, Tokyo." style="background-image: url('tokyo.jpg')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8 w-full">
+<div class="px-3 py-1 bg-tertiary-container/20 backdrop-blur-md text-tertiary-fixed-dim text-label-sm rounded-full w-fit mb-4">Urban Modernism</div>
+<h3 class="text-white font-headline-md mb-2">Neon Nights, Tokyo</h3>
+<div class="flex items-center justify-between">
+<span class="text-white/80 font-body-md">$2,800 / person</span>
+<span class="material-symbols-outlined text-secondary-container">star</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. The Itinerary Experience -->
+<section class="bg-surface-container py-section-gap relative overflow-hidden">
+    <div class="max-w-6xl mx-auto px-margin-mobile grid grid-cols-1 md:grid-cols-2 gap-20">
+        <div class="md:sticky md:top-32 h-fit">
+<h2 class="font-display-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-6">7-Day Amalfi Coast</h2>
+<p class="text-body-lg text-on-surface-variant mb-8">Follow the curves of the Italian coastline. A journey through lemon groves, azure waters, and cliffside gastronomy.</p>
+<div class="space-y-4">
+<div class="flex items-center gap-4 text-on-surface font-label-md">
+<span class="material-symbols-outlined text-secondary">flight_takeoff</span> Private Jet Transfer
+                        </div>
+<div class="flex items-center gap-4 text-on-surface font-label-md">
+<span class="material-symbols-outlined text-secondary">hotel</span> Luxury Villa Stays
+                        </div>
+<div class="flex items-center gap-4 text-on-surface font-label-md">
+<span class="material-symbols-outlined text-secondary">directions_boat</span> Private Yacht Charter
+                        </div>
+</div>
+<div class="mt-12 p-6 glass-card rounded-2xl border-primary/10">
+<div class="text-label-sm text-primary mb-2 uppercase tracking-widest">Next departure</div>
+<div class="text-headline-md text-on-surface">September 12, 2024</div>
+<button class="mt-6 w-full py-4 bg-secondary text-on-secondary rounded-xl font-label-md">Join Waitlist</button>
+</div>
+</div>
+<div class="relative pl-12 border-l-2 border-dashed border-outline-variant py-10" id="itinerary-scroll">
+<!-- Tracking Icon -->
+<div class="absolute -left-5 top-0 w-10 h-10 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg transition-all duration-300 z-10" id="itinerary-tracker">
+<span class="material-symbols-outlined text-xl">footprint</span>
+</div>
+<!-- Day 1 -->
+<div class="mb-20 reveal-step">
+<div class="text-label-sm text-secondary font-bold mb-2">Day 01</div>
+<h4 class="text-headline-md mb-4">The Arrival in Sorrento</h4>
+<p class="text-body-md text-on-surface-variant mb-6">Touch down at Naples and transfer by private helicopter to your clifftop villa in Sorrento. Welcome sunset dinner overlooking Vesuvius.</p>
+<div class="rounded-xl overflow-hidden aspect-video shadow-md">
+<img class="w-full h-full object-cover" data-alt="A breathtaking sunset view from a luxury Sorrento villa balcony. In the background, the iconic Mount Vesuvius sits across the deep blue Bay of Naples. A white-clothed table is set with local Italian wine and fresh lemons. Warm, golden-hour Mediterranean lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAARn4MzJMS84SLwsNGljU_vaw87vt2E8fuXSM6ubNP2ZZm5JzaoH1qbOhd1h7WinZCdGDrngRhlrsSYjIz7u3_SzmJFxpqovR7_-epPfCDySPCTiL5kTouRlGQCLH68vOuNM6NAw3dNg9z44BEkB_sZV9tqKioIgTcASy8DabFM7NmhQAwcdOEaOyZMCtfzYksOs-bXYbtA5ZJ-Kd41DYVVm6zZH1HaSQXWiKypm82ViWhwO1e3akd5rbE1AJlulqJiPIaTGZ6OdU"/>
+</div>
+</div>
+<!-- Day 3 -->
+<div class="mb-20 reveal-step">
+<div class="text-label-sm text-secondary font-bold mb-2">Day 03</div>
+<h4 class="text-headline-md mb-4">Capri Blue Grotto Voyage</h4>
+<p class="text-body-md text-on-surface-variant mb-6">A private Riva boat awaits to take you to the island of Capri. Swim in secret coves and enjoy a Michelin-starred lunch on the rocks.</p>
+<div class="rounded-xl overflow-hidden aspect-video shadow-md">
+<img class="w-full h-full object-cover" data-alt="A classic vintage Riva speedboat gliding through the crystalline azure waters of the Mediterranean near the Faraglioni rocks in Capri. The water is sparkling and clear. Two elegant travelers are visible, embodying high-end nautical luxury. Vibrant aqua and deep navy colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0vgGJysQhPBgoUf99ON5tO8i7wIRj0b75BDbHGPrdTYKMDHvxb6iNKBRVOhLjS1y_MBNb6ADeNZSwh2NikVOAalvXYzhE5nRzwfpDoFd6hFSLgjjdGSnITd1eKS7emylzoPbehKrsZY3gb2JDpRrt1KJRJTcQC0JCSkYkncp9XC7uN3KPWXomCHq7iZAu4EDC_0azdrDwUIWraCwRxfBNPCAy2raGAJ7YjsP7WQl3K7F-7RN6qGghmvhZ-MuLv-rKfXXQQK9dFgk"/>
+</div>
+</div>
+<!-- Day 7 -->
+<div class="reveal-step">
+<div class="text-label-sm text-secondary font-bold mb-2">Day 07</div>
+<h4 class="text-headline-md mb-4">Positano Vertical Farewell</h4>
+<h3 class="text-body-md text-on-surface-variant mb-6">Spend your final day wandering the vertical streets of Positano. Private shopping experience with a local artisan before a farewell gala.</h3>
+<div class="rounded-xl overflow-hidden aspect-video shadow-md">
+<img class="w-full h-full object-cover" data-alt="The colorful stacked houses of Positano, Italy, viewed from the sea at golden hour. Pastel shades of pink, yellow, and orange glow against the rugged green cliffs. The atmosphere is romantic, bustling yet sophisticated. High-end destination marketing aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6uDyW5WZ1vhA9YnsA5lI7JNFp-bI9ssDsw29dajevgPGGgS_6TfPoO0hgPf1Uwa5essHZk_kGTu1WMYczFjY_bJarYcLhB2VvaVe2rX1vFCRCsZYMwuGWDYox_xMVIZGZB7wopXN0wLIxUWSOaEF80yKUA0FNcqjAbVfLQGmUZ5wFSj1W87469kCqJTiqn6nBXSwZPYttW5GY9f1AH85aGwpLVyEbTlJICXG-E_EKgR7aK5F3zqUT_EvLBrZrhqMNMPzNBn2GcwE"/>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. Trust & Social Proof -->
+<section class="py-section-gap overflow-hidden bg-surface">
+<div class="text-center mb-16 px-margin-mobile">
+<h2 class="font-display-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-4">The Lumina Legacy</h2>
+<p class="text-body-lg text-on-surface-variant">Real stories from our community of global citizens.</p>
+</div>
+<div class="flex overflow-hidden group">
+<div class="animate-marquee flex gap-8 py-4">
+<!-- Review 1 -->
+<div class="w-[400px] bg-surface-container-lowest p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-outline-variant/30 shrink-0">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A portrait of a sophisticated middle-aged man with a graying beard and friendly eyes, wearing a linen shirt. Professional studio lighting with a neutral background. High-quality photographic portrait." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4ZNsi1fuJ9cuwZbFwIUUouXUZ905Vr5U_NslY_7NgQsoR5ipyfQUKx2gqGngEDpULLIEl_Uo0x4cBtxyrOQs9mWg_OxFIMnfvB6WYsp_biDREdjbNchcgWl8nlxTSSzBD68wW5JtF5ZECRsZbN44GJ_5qg7AFAU1EEmym5RcGZgBTi_Eszag6jl8mq0I7UUjkoox4TTU173F8mfp79Gz4SaHjmqFdRB1Bg0391P-ihaUnjoOz_psHj4hWAV4zt5SttoCgvWe-lyQ"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">Julian Marc</div>
+<div class="text-label-sm text-outline">London, UK</div>
+</div>
+</div>
+<p class="italic text-body-md text-on-surface-variant">"Lumina doesn't just book trips; they craft memories. The Amalfi itinerary was seamless and truly felt like a private world made just for us."</p>
+</div>
+<!-- Review 2 -->
+<div class="w-[400px] bg-surface-container-lowest p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-outline-variant/30 shrink-0">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A portrait of an elegant young woman with a warm smile, wearing designer sunglasses and a silk scarf. Natural sunlight lighting, suggesting a tropical destination. Professional high-end portrait." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOrWWqjgi0PZHRf23J8eHQH2k-fuzsqwerUOlAe55qDuqQ2BdMYSqyrj2HuIfg_YApTr6nuhBfz9zlwBuvxIkCYzsYC5DaD_frJE1PtkrFhlJ_2NzWfbsDjS9GsAdOLpMUAlZPc9Qc-UVekv_03BWnUrc5WQAS7OZEeZIJKLHSLp-HQFi-ghYTXvqW2dYuwbajAFJzBpAVJJDX2IdfZho2xKIiBAsGp6JyBe6r4uOh8V4OL7z8-9_EOJ0K1W5sHCaPe_0qab8h3WI"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">Sienna Rossi</div>
+<div class="text-label-sm text-outline">New York, USA</div>
+</div>
+</div>
+<p class="italic text-body-md text-on-surface-variant">"The attention to detail in Bali was staggering. I've traveled luxury my whole life, but this was a different level of intentionality."</p>
+</div>
+<!-- Review 3 -->
+<div class="w-[400px] bg-surface-container-lowest p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-outline-variant/30 shrink-0">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A portrait of a creative professional man with glasses and a stylish coat. Minimalist modern background, soft lighting. High-quality photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuALQ7LCA3UCtCGESbGe1hYaT9aTte10BVi5PTxnTg-KJiAcDCKX-TagJ2rQ-xi-7WFRiFhjEk75Hkwj-PR2jVj1hv22Cs8Iiy66QwwIVogpOcSveoQd3E2zurgM15bjLKTe6Sp0UG7zcBPb8jOJpx601da4Sx5ltcTreRff5lYqm1NZ0q2JYaUuye0ugop7WzWgktMn-XtgIRZE2EVfJf-m8LSTElS8Fevbx5PM7fXRnqbWhP5Qsb8yS_FX9jDJxuR1BftiXXWXNWU"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">Takumi Sato</div>
+<div class="text-label-sm text-outline">Tokyo, Japan</div>
+</div>
+</div>
+<p class="italic text-body-md text-on-surface-variant">"Lumina understands that time is the ultimate luxury. Every second of our trip was curated to perfection without feeling rushed."</p>
+</div>
+<!-- Repeat for marquee loop -->
+<div class="w-[400px] bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/30 shrink-0">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="Professional portrait of a diverse luxury traveler, smiling warmly. Soft light, high-end photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGHdqIMtg3Kb1M80oQOGXutBJRdfI9WxcyxYPbSH0sIlDd_Mjx9kgooidJEgz3tJdl3n1qeEpN5E-CNfIaLpdpHHbXex0R57YnwiwW6Cbkd2A6KzDU7WBgWBUJS2qzJj8LCPNltgZX5aiJ9Ur4DgHB2wFzAiqptYfN46H4eMsII4pBsWgm7b0kZz_L4dcjQxZbJULoFJCPnVLkVKBg4UUPADo5p9O6R0wymwbNDQaCJYu2wym8rKhe_zHldM2UE1DA0u4A94S_LMQ"/>
+</div>
+<div>
+<div class="font-bold text-on-surface">Elena Vance</div>
+<div class="text-label-sm text-outline">Sydney, AU</div>
+</div>
+</div>
+<p class="italic text-body-md text-on-surface-variant">"Unforgettable. The access Lumina has to local experts and private locations is what sets them apart from everyone else."</p>
+</div>
+</div>
+</div>
+</section>
+<!-- 6. Interactive Inquiry -->
+<section class="py-section-gap px-margin-mobile relative">
+<div class="max-w-4xl mx-auto glass-card rounded-3xl p-10 md:p-20 shadow-2xl overflow-hidden relative">
+<!-- Background Glow -->
+<div class="absolute -top-24 -right-24 w-64 h-64 bg-primary-container/20 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-24 -left-24 w-64 h-64 bg-secondary-container/20 rounded-full blur-3xl"></div>
+<div class="relative z-10 text-center max-w-2xl mx-auto mb-16">
+<h2 class="font-display-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-4">Start Your Story</h2>
+<p class="text-body-lg text-on-surface-variant">Our consultants are ready to design your next masterpiece. Tell us where your mind is wandering.</p>
+</div>
+<form class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-2">
+<label class="font-label-md text-primary">Full Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl p-4 focus:ring-2 focus:ring-primary-container transition-all" placeholder="Enter your name" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-primary">Email Address</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl p-4 focus:ring-2 focus:ring-primary-container transition-all" placeholder="your@email.com" type="email"/>
+</div>
+<div class="md:col-span-2 space-y-2">
+<label class="font-label-md text-primary">Potential Destination &amp; Interest</label>
+<textarea class="w-full bg-surface-container-low border-none rounded-xl p-4 focus:ring-2 focus:ring-primary-container transition-all h-32" placeholder="Tell us what you're dreaming of..."></textarea>
+</div>
+<div class="md:col-span-2">
+<button class="w-full py-5 bg-primary text-on-primary font-label-md font-bold rounded-xl hover:scale-[1.02] transition-transform shadow-xl shadow-primary/20">
+                            Request My Consultation
+                        </button>
+</div>
+</form>
+</div>
+</section>
+</main>
+<!-- Footer Shell -->
+<footer class="bg-inverse-surface w-full py-section-gap border-t border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-start px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto gap-12">
+<div class="max-w-sm">
+<div class="font-display-lg text-headline-md text-primary-fixed mb-6">LUMINA TRAVEL</div>
+<p class="text-surface-variant font-body-md mb-8">Pioneering the future of luxury travel through sustainable exploration and authentic local connection.</p>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-primary-fixed hover:bg-primary-fixed hover:text-on-primary transition-all" href="#">
+<span class="material-symbols-outlined">share</span>
+</a>
+<a class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-primary-fixed hover:bg-primary-fixed hover:text-on-primary transition-all" href="#">
+<span class="material-symbols-outlined">public</span>
+</a>
+<a class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-primary-fixed hover:bg-primary-fixed hover:text-on-primary transition-all" href="#">
+<span class="material-symbols-outlined">mail</span>
+</a>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-12">
+<div>
+<h5 class="font-label-md text-primary-fixed-dim mb-6 uppercase">Experience</h5>
+<ul class="space-y-4 text-surface-variant font-body-md">
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Our Vision</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Safety Protocols</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Sustainability</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Concierge</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-label-md text-primary-fixed-dim mb-6 uppercase">Legal</h5>
+<ul class="space-y-4 text-surface-variant font-body-md">
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Terms of Service</a></li>
+<li><a class="hover:text-primary-fixed transition-colors" href="#">Booking Policy</a></li>
+</ul>
+</div>
+<div class="col-span-2 md:col-span-1">
+<h5 class="font-label-md text-primary-fixed-dim mb-6 uppercase">Contact</h5>
+<p class="text-surface-variant mb-2">124 Global Way, Level 14</p>
+<p class="text-surface-variant mb-4">Sydney, NSW 2000</p>
+<p class="text-primary-fixed font-bold underline">concierge@lumina.travel</p>
+</div>
+</div>
+</div>
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop mt-20 pt-8 border-t border-outline-variant/30 text-center md:text-left text-surface-variant font-label-sm">
+            © 2024 Lumina Global Explorations. All rights reserved.
+        </div>
+</footer>
+<!-- Floating WhatsApp CTA -->
+<a class="fixed bottom-8 right-8 z-50 w-16 h-16 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center shadow-2xl animate-pulse-soft hover:scale-110 transition-transform" href="#">
+<span class="material-symbols-outlined text-3xl">chat</span>
+</a>
+<script>
+        // GSAP Initialization
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Core Constants for Plane Animation
+        const START_FRAME = 82;
+        const END_FRAME = 270;
+        const FRAME_COUNT = END_FRAME - START_FRAME + 1; // 189
+        const images = [];
+        let loadedCount = 0;
+
+        const canvas = document.getElementById('plane-canvas');
+        const context = canvas.getContext('2d');
+
+        // preloader element targets
+        const preloader = document.getElementById('preloader');
+        const progressBar = document.getElementById('loader-progress');
+        const loaderPercentText = document.getElementById('loader-percent');
+
+        // HUD telemetry targets
+        const teleFrame = document.getElementById('tele-frame');
+        const teleAlt = document.getElementById('tele-alt');
+        const teleSpeed = document.getElementById('tele-speed');
+        const telePitch = document.getElementById('tele-pitch');
+
+        // Helper to format frame numbers (82 -> "082")
+        const formatFrameNumber = (num) => {
+            return String(num).padStart(3, '0');
+        };
+
+        // Preload JPG frames
+        const preloadFrames = () => {
+            return new Promise((resolve) => {
+                for (let i = START_FRAME; i <= END_FRAME; i++) {
+                    const img = new Image();
+                    img.src = `ezgif-frame-${formatFrameNumber(i)}.jpg`;
+                    img.onload = () => {
+                        loadedCount++;
+                        const percent = Math.round((loadedCount / FRAME_COUNT) * 100);
+                        if (progressBar) progressBar.style.width = `${percent}%`;
+                        if (loaderPercentText) loaderPercentText.textContent = `PREPARING EXPEDITIONS... ${percent}%`;
+                        
+                        if (loadedCount === FRAME_COUNT) resolve();
+                    };
+                    img.onerror = () => {
+                        loadedCount++;
+                        if (loadedCount === FRAME_COUNT) resolve();
+                    };
+                    images.push({ frameId: i, element: img });
+                }
+            });
+        };
+
+        // Handle canvas sizing (aspect-fit cover drawing)
+        const resizeCanvas = () => {
+            if (images.length === 0) return;
+            canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+            canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+            drawFrame(currentScrollFrame());
+        };
+
+        const drawFrame = (frameId) => {
+            const imgObj = images.find(img => img.frameId === frameId);
+            if (!imgObj) return;
+
+            const img = imgObj.element;
+            if (!img || !img.complete) return;
+
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            const imgWidth = img.width;
+            const imgHeight = img.height;
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+
+            const imgRatio = imgWidth / imgHeight;
+            const canvasRatio = canvasWidth / canvasHeight;
+
+            let sWidth, sHeight, sx, sy;
+
+            if (canvasRatio > imgRatio) {
+                sWidth = imgWidth;
+                sHeight = imgWidth / canvasRatio;
+                sx = 0;
+                sy = (imgHeight - sHeight) / 2;
+            } else {
+                sHeight = imgHeight;
+                sWidth = imgHeight * canvasRatio;
+                sx = (imgWidth - sWidth) / 2;
+                sy = 0;
+            }
+
+            context.drawImage(
+                img,
+                sx, sy, sWidth, sHeight,
+                0, 0, canvasWidth, canvasHeight
+            );
+        };
+
+        // Returns current frame index based on scroll position
+        const currentScrollFrame = () => {
+            if (!ScrollTrigger.getById("heroTrigger")) return START_FRAME;
+            const progress = ScrollTrigger.getById("heroTrigger").progress;
+            const frameOffset = Math.min(FRAME_COUNT - 1, Math.floor(progress * FRAME_COUNT));
+            return START_FRAME + frameOffset;
+        };
+
+        // Initialize Web Elements
+        preloadFrames().then(() => {
+            // Sort image array to prevent out of sequence draws
+            images.sort((a, b) => a.frameId - b.frameId);
+
+            // Hide preloader
+            gsap.to(preloader, {
+                opacity: 0,
+                duration: 0.8,
+                ease: "power2.out",
+                onComplete: () => {
+                    preloader.style.display = "none";
+                    resizeCanvas();
+                    initAnimations();
+                }
+            });
+        });
+
+        // Set up GSAP scroll timelines
+        const initAnimations = () => {
+            // Initial Hero Reveal on entrance
+            gsap.timeline()
+                .to("#hero-title", { opacity: 1, y: 0, duration: 1, ease: "power3.out" })
+                .to("#hero-subtitle", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.7")
+                .to("#hero-buttons", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.7");
+
+            // Hero Canvas Scroll Animation scrub
+            ScrollTrigger.create({
+                id: "heroTrigger",
+                trigger: "#hero-scroll-container",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 0.2,
+                onUpdate: (self) => {
+                    const progress = self.progress;
+                    const frameId = START_FRAME + Math.min(FRAME_COUNT - 1, Math.floor(progress * FRAME_COUNT));
+                    
+                    // Render current frame
+                    drawFrame(frameId);
+
+                    // Telemetry values update
+                    if (teleFrame) teleFrame.textContent = `FRAME: ${formatFrameNumber(frameId)}`;
+                    if (teleAlt) teleAlt.textContent = `ALTITUDE: ${Math.round(progress * 42000).toLocaleString()} FT`;
+                    if (teleSpeed) teleSpeed.textContent = `VELOCITY: MACH ${(progress * 2.2).toFixed(2)}`;
+                    
+                    const pitchAngle = Math.round(-15 + progress * 40);
+                    if (telePitch) telePitch.textContent = `PITCH: ${pitchAngle >= 0 ? '+' : ''}${pitchAngle}°`;
+
+                    // Fade scroll helper indicator
+                    const indicator = document.getElementById("hero-scroll-indicator");
+                    if (indicator) {
+                        if (progress > 0.02) {
+                            indicator.style.opacity = Math.max(0, 1 - (progress - 0.02) * 15);
+                            indicator.style.pointerEvents = "none";
+                        } else {
+                            indicator.style.opacity = 0.8;
+                            indicator.style.pointerEvents = "all";
+                        }
+                    }
+                }
+            });
+
+            // Fade and translate hero text overlay elements as scroll progress starts
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: "#hero-scroll-container",
+                    start: "top top",
+                    end: "top -30%",
+                    scrub: true
+                }
+            })
+            .to("#hero-title", { opacity: 0, y: -50 })
+            .to("#hero-subtitle", { opacity: 0, y: -40 }, 0)
+            .to("#hero-buttons", { opacity: 0, y: -35 }, 0);
+
+            // Set up resize handler
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // Cards Reveal on Scroll
+            gsap.from(".reveal-card", {
+                scrollTrigger: {
+                    trigger: ".reveal-card",
+                    start: "top 85%",
+                },
+                opacity: 0,
+                y: 50,
+                duration: 0.8,
+                stagger: 0.15,
+                ease: "back.out(1.4)"
+            });
+
+            // Itinerary Timeline Logic (Desktop only)
+            const itineraryTracker = document.getElementById('itinerary-tracker');
+            const itineraryContainer = document.getElementById('itinerary-scroll');
+
+            if (window.innerWidth >= 768) {
+                ScrollTrigger.create({
+                    trigger: itineraryContainer,
+                    start: "top 20%",
+                    end: "bottom 80%",
+                    onUpdate: (self) => {
+                        const progress = self.progress;
+                        const containerHeight = itineraryContainer.offsetHeight;
+                        const yPos = progress * containerHeight;
+                        gsap.to(itineraryTracker, {
+                            top: yPos,
+                            duration: 0.1,
+                            ease: "none"
+                        });
+                    }
+                });
+            } else {
+                // Hide tracker dot on mobile stack layout
+                if (itineraryTracker) itineraryTracker.style.display = "none";
+            }
+
+            // Itinerary Steps Reveal
+            gsap.utils.toArray(".reveal-step").forEach((step, i) => {
+                gsap.from(step, {
+                    scrollTrigger: {
+                        trigger: step,
+                        start: "top 80%",
+                    },
+                    opacity: 0,
+                    x: 30,
+                    duration: 1,
+                    ease: "power3.out"
+                });
+            });
+
+            // hover cards zoom
+            const cards = document.querySelectorAll('.group');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    const bg = card.querySelector('.absolute.inset-0');
+                    if (bg) gsap.to(bg, { scale: 1.05, duration: 1.5, ease: "power2.out" });
+                });
+                card.addEventListener('mouseleave', () => {
+                    const bg = card.querySelector('.absolute.inset-0');
+                    if (bg) gsap.to(bg, { scale: 1, duration: 1.5, ease: "power2.out" });
+                });
+            });
+        };
+
+        // --- Mobile Menu Toggle logic ---
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenuClose = document.getElementById('mobile-menu-close');
+
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.add('open');
+            });
+        }
+
+        if (mobileMenuClose && mobileMenu) {
+            mobileMenuClose.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+            });
+        }
+    </script>
+</body></html>
